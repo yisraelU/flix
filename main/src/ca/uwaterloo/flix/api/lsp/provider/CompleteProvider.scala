@@ -32,8 +32,9 @@ object CompleteProvider {
   /**
     * Returns a list of auto-complete suggestions.
     */
-  def autoComplete(uri: String, pos: Position, line: Option[String], word: Option[String])(implicit index: Index, root: TypedAst.Root): Iterable[CompletionItem] = {
+  def autoComplete(uri: String, pos: Position, ctx: CompletionContext, line: Option[String], word: Option[String])(implicit index: Index, root: TypedAst.Root): Iterable[CompletionItem] = {
     // Ordered by priority.
+    println(ctx)
     getDefAndSigSuggestions(uri, pos, line, word) ++
       getInstanceSuggestions(uri, pos, line, word) ++
       getWithSuggestions(uri, pos, line, word) ++

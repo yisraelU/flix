@@ -87,7 +87,7 @@ object Request {
   /**
     * A complete request.
     */
-  case class Complete(requestId: String, uri: String, pos: Position) extends Request
+  case class Complete(requestId: String, uri: String, pos: Position, ctx: CompletionContext) extends Request
 
   /**
     * A request to go to a declaration.
@@ -265,7 +265,10 @@ object Request {
       id <- parseId(json)
       uri <- parseUri(json)
       pos <- Position.parse(json \\ "position")
-    } yield Request.Complete(id, uri, pos)
+      ctx <- CompletionContext.parse(json \\ "context")
+    } yield {
+      Request.Complete(id, uri, pos, ctx)
+    }
   }
 
   /**

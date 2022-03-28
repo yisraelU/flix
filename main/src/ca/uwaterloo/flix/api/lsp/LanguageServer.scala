@@ -243,7 +243,7 @@ class LanguageServer(port: Int) extends WebSocketServer(new InetSocketAddress("l
 
     case Request.Codelens(id, uri) => processCodelens(id, uri)
 
-    case Request.Complete(id, uri, pos) => processComplete(id, uri, pos)
+    case Request.Complete(id, uri, pos, ctx) => processComplete(id, uri, pos, ctx)
 
     case Request.Highlight(id, uri, pos) =>
       ("id" -> id) ~ HighlightProvider.processHighlight(uri, pos)(index, root)
@@ -383,13 +383,13 @@ class LanguageServer(port: Int) extends WebSocketServer(new InetSocketAddress("l
   /**
     * Processes a complete request.
     */
-  private def processComplete(requestId: String, uri: String, pos: Position)(implicit ws: WebSocket): JValue = {
+  private def processComplete(requestId: String, uri: String, pos: Position, ctx: CompletionContext)(implicit ws: WebSocket): JValue = {
     val source = sources.get(uri)
     val line = source.flatMap(lineAt(_, pos.line - 1))
     val word = line.flatMap(wordAt(_, pos.character - 1))
 
     val t = System.nanoTime()
-    val suggestions = CompleteProvider.autoComplete(uri, pos, line, word)(index, root)
+    val suggestions = CompleteProvider.autoComplete(uri, pos, ctx, line, word)(index, root)
     // println(s"Found ${suggestions.size} suggestions for '$word' (elapsed: " + ((System.nanoTime() - t) / 1_000_000) + "ms)")
 
     val result = CompletionList(isIncomplete = true, suggestions)
