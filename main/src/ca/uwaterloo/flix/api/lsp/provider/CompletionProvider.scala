@@ -183,6 +183,7 @@ object CompletionProvider {
     val classRegex = raw"\s*class\s+.*".r
     val letRegex = raw"\s*let\s+[^\s]*".r
     val letStarRegex = raw"\s*let[\*]\s+[^\s]*".r
+    val tripleQuestionMarkRegex = raw"\s+\?\?\?".r
     val modRegex = raw"\s*mod\s+.*".r
     val tripleQuestionMarkRegex = raw"\?|.*\s+\?.*".r
     val underscoreRegex = raw"(?:(?:.*\s+)|)_[^s]*".r
