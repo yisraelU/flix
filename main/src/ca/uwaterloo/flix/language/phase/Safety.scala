@@ -414,6 +414,8 @@ object Safety {
     case (Type.Cst(TypeConstructor.Str, _), Type.Cst(TypeConstructor.Native(right), _)) =>
       right.isAssignableFrom(classOf[java.lang.String])
 
+    case (Type.Cst(TypeConstructor.Str, _), Type.Cst(TypeConstructor.Null, _)) => true
+
     case (Type.Cst(TypeConstructor.BigInt, _), Type.Cst(TypeConstructor.Native(right), _)) =>
       right.isAssignableFrom(classOf[java.math.BigInteger])
 
