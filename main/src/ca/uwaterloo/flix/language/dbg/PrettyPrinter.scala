@@ -19,15 +19,12 @@ package ca.uwaterloo.flix.language.dbg
 import ca.uwaterloo.flix.api.Flix
 import ca.uwaterloo.flix.language.ast.LiftedAst._
 import ca.uwaterloo.flix.language.ast._
-import ca.uwaterloo.flix.language.fmt.Audience
 import ca.uwaterloo.flix.language.fmt.FormatType.formatType
 import ca.uwaterloo.flix.util.Formatter
 
 import scala.collection.mutable
 
 object PrettyPrinter {
-
-  private implicit val audience: Audience = Audience.External
 
   object Lifted {
 
@@ -216,6 +213,9 @@ object PrettyPrinter {
             .append(" = ")
             .append(visitExp(exp).replace(System.lineSeparator(), System.lineSeparator() + (" " * 2)))
             .toString
+
+        case Expression.ScopeExit(exp1, exp2, _, _, _) =>
+          "$SCOPE_EXIT$(" + visitExp(exp1) + ", " + visitExp(exp2) + ")"
 
         case Expression.Is(sym, exp, _, loc) => visitExp(exp) + " is " + sym.name
 

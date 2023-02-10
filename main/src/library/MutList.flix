@@ -29,10 +29,6 @@ instance Newable[MutList[a]] {
     pub def new(r: Region[r]): MutList[a, r] \ Write(r) = MutList.new(r)
 }
 
-instance Scoped[MutList[a]] {
-    pub def regionOf(_: MutList[a, r]): Region[r] = unsafe_cast () as Region[r]
-}
-
 namespace MutList {
 
     ///
@@ -745,6 +741,15 @@ namespace MutList {
         Array.copyOfRange(r1, 0, deref l, deref a)
 
     ///
+    /// Returns `xs` as a vector.
+    ///
+    pub def toVector(xs: MutList[a, r]): Vector[a] \ Read(r) = region rc {
+        let arr = Array.new(rc, length(xs));
+        forEachWithIndex((i, x) -> Array.put(x, i, arr), xs);
+        Array.toVector(arr)
+    }
+
+    ///
     /// Returns the mutable list `xs` as a chain.
     ///
     pub def toChain(xs: MutList[a, r]): Chain[a] \ Read(r) =
@@ -807,16 +812,21 @@ namespace MutList {
     ///
     /// Modifying `l` while using an iterator has undefined behavior and is dangerous.
     ///
-    pub def iterator(r1: Region[r1], l: MutList[a, r2]): Iterator[a, r1 and r2] \ { Write(r1), Read(r2) } =
+    pub def iterator(rc: Region[r1], l: MutList[a, r2]): Iterator[a, r1 and r2, r1] \ { Write(r1), Read(r2) } =
         let MutList(_, a, len) = l;
-        let i = ref 0 @ r1;
-        let done = () -> deref i == deref len;
+        let len1 = deref len;
+        let ix = ref 0 @ rc;
         let next = () -> {
-            let x = (deref a)[deref i];
-            i := deref i + 1;
-            x
+            let i = deref ix;
+            if (i < len1) {
+                let x = (deref a)[i];
+                ix := i + 1;
+                Some(x)
+            } else {
+                None
+            }
         };
-        unsafe_cast Iterator.Iterator(done, next) as _ \ { Write(r1), Read(r2) }
+        Iterator.iterate(rc, next)
 
     ///
     /// Applies `f` to all the elements in `v`.
